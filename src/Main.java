@@ -7,7 +7,7 @@ import org.neo4j.graphdb.factory.GraphDatabaseFactory;
 
 /*Silvio Orozco 18282
  * Jose Castañeda 18161
- * HDT9
+ * HDT10
  * */
 public class Main {
 
