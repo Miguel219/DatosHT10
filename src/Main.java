@@ -80,7 +80,7 @@ public class Main {
 					//Se guarda en os nodos de persona
 					Node nodeP = db.createNode(Label.label("Persona"));
 					nodeP.setProperty("nombre", nombre);
-					nodeP.setProperty("especialidad", especialidad);
+					nodeP.setProperty("tipo", "doctor");
 					nodeP.setProperty("telefono", telefono);
 					tx.success();
 				} finally {
@@ -103,6 +103,7 @@ public class Main {
 					//Se guarda en os nodos de persona
 					Node nodeP = db.createNode(Label.label("Persona"));
 					nodeP.setProperty("nombre", nombre);
+					nodeP.setProperty("tipo", "paciente");
 					nodeP.setProperty("telefono", telefono);
 					tx.success();
 				} finally {
@@ -149,7 +150,7 @@ public class Main {
 					while(result.hasNext()) {
 						count = count + 1;
 						Map<String, Object> doctor = result.next();
-						System.out.println(count + ". " + doctor.get("d.nombre"));
+						System.out.println(count + ". " + doctor.get("d.nombre") + "\n");
 					};
 				} finally {
 					// TODO: handle finally clause
@@ -170,6 +171,32 @@ public class Main {
 							  "CREATE (p1) -[:KNOWS]-> (p2)" +
 							  "RETURN p1.nombre, p2.nombre");
 					tx.success();
+				} finally {
+					// TODO: handle finally clause
+					tx.close();
+				}
+			}
+			if(menu==6) {		
+				Transaction tx = db.beginTx();
+				try {
+					//Se pide la informacion del medico
+					System.out.println("Ingrese su nombre:");
+					String nombre = s.nextLine();
+					System.out.println("Ingrese la especialidad deseada:");
+					String especialidad = s.nextLine();
+					Result result = db.execute(
+							  "MATCH (p1:Persona) -[:KNOWS]-> (p2:Persona) -[:KNOWS]-> (p:Persona)" +
+							  "WHERE p1.nombre='"+ nombre +"' and p.tipo='doctor'" +
+							  "MATCH (d:Doctor)" +
+							  "WHERE d.nombre = p.nombre and d.especialidad = '"+ especialidad +"'" + 
+							  "RETURN d.nombre, d.telefono");
+					tx.success();
+					System.out.println("Doctor recomendado dado que lo conoce un conocido o el conocido de un conocido:");
+					while(result.hasNext()) {
+						Map<String, Object> doctor = result.next();
+						System.out.println("Nombre: " + doctor.get("d.nombre"));
+						System.out.println("Telefono: " + doctor.get("d.telefono") + "\n");
+					};
 				} finally {
 					// TODO: handle finally clause
 					tx.close();
