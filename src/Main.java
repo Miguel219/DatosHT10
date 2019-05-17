@@ -208,6 +208,8 @@ public class Main {
 							Map<String, Object> doctor = result2.next();
 							System.out.println("Nombre: " + doctor.get("d.nombre"));
 							System.out.println("Telefono: " + doctor.get("d.telefono") + "\n");
+						}else {
+							System.out.println("No hay suficiente informacion para recomendar");
 						}
 					};
 				} finally {
@@ -247,6 +249,8 @@ public class Main {
 							Map<String, Object> doctor = result2.next();
 							System.out.println("Nombre: " + doctor.get("d.nombre"));
 							System.out.println("Telefono: " + doctor.get("d.telefono") + "\n");
+						}else {
+							System.out.println("No hay suficiente informacion para recomendar");
 						}
 					};
 				} finally {
