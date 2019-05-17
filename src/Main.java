@@ -180,31 +180,70 @@ public class Main {
 				Transaction tx = db.beginTx();
 				try {
 					//Se pide la informacion del medico
-					System.out.println("Ingrese su nombre:");
+					System.out.println("Ingrese el nombre de la persona especifica:");
 					String nombre = s.nextLine();
 					System.out.println("Ingrese la especialidad deseada:");
 					String especialidad = s.nextLine();
 					Result result = db.execute(
-							  "MATCH (p1:Persona) -[:KNOWS]-> (p2:Persona) -[:KNOWS]-> (p:Persona)" +
+							  "MATCH (p1:Persona) -[:KNOWS]-> (p:Persona)" +
+							  "WHERE p1.nombre='"+ nombre +"'  and p.tipo='paciente'" +
+							  "MATCH (pa:Paciente) -[:VISITS]-> (d:Doctor)" +
+							  "WHERE pa.nombre = p.nombre and d.especialidad = '"+ especialidad +"'" + 
+							  "RETURN d.nombre, d.telefono");
+					tx.success();
+					if(result.hasNext()) {
+						System.out.println("Doctor recomendado dado que lo ha visitado un conocido:");
+						Map<String, Object> doctor = result.next();
+						System.out.println("Nombre: " + doctor.get("d.nombre"));
+						System.out.println("Telefono: " + doctor.get("d.telefono") + "\n");
+					}else if(!result.hasNext()) {
+						Result result2 = db.execute(
+								  "MATCH (p1:Persona) -[:KNOWS]-> (p2:Persona) -[:KNOWS]-> (p:Persona)" +
+								  "WHERE p1.nombre='"+ nombre +"' and p.tipo='paciente'" +
+								  "MATCH (pa:Paciente) -[:VISITS]-> (d:Doctor)" +
+								  "WHERE pa.nombre = p.nombre and d.especialidad = '"+ especialidad +"'" + 
+								  "RETURN d.nombre, d.telefono");
+						if(result2.hasNext()) {
+							System.out.println("Doctor recomendado dado que lo ha visitado el conocido de un conocido:");
+							Map<String, Object> doctor = result2.next();
+							System.out.println("Nombre: " + doctor.get("d.nombre"));
+							System.out.println("Telefono: " + doctor.get("d.telefono") + "\n");
+						}
+					};
+				} finally {
+					// TODO: handle finally clause
+					tx.close();
+				}
+			}
+			if(menu==7) {		
+				Transaction tx = db.beginTx();
+				try {
+					//Se pide la informacion del medico
+					System.out.println("Ingrese el nombre del doctor especifico:");
+					String nombre = s.nextLine();
+					System.out.println("Ingrese la especialidad deseada:");
+					String especialidad = s.nextLine();
+					Result result = db.execute(
+							  "MATCH (p1:Persona) -[:KNOWS]-> (p:Persona)" +
 							  "WHERE p1.nombre='"+ nombre +"' and p.tipo='doctor'" +
 							  "MATCH (d:Doctor)" +
 							  "WHERE d.nombre = p.nombre and d.especialidad = '"+ especialidad +"'" + 
 							  "RETURN d.nombre, d.telefono");
 					tx.success();
 					if(result.hasNext()) {
-						System.out.println("Doctor recomendado dado que lo conoce un conocido:");
+						System.out.println("Doctor recomendado dado que lo conoce el doctor original:");
 						Map<String, Object> doctor = result.next();
 						System.out.println("Nombre: " + doctor.get("d.nombre"));
 						System.out.println("Telefono: " + doctor.get("d.telefono") + "\n");
 					}else if(!result.hasNext()) {
 						Result result2 = db.execute(
-								  "MATCH (p1:Persona) -[:KNOWS]-> (p2:Persona) -[:KNOWS]-> (p3:Persona) -[:KNOWS]-> (p:Persona)" +
+								  "MATCH (p1:Persona) -[:KNOWS]-> (p2:Persona) -[:KNOWS]-> (p:Persona)" +
 								  "WHERE p1.nombre='"+ nombre +"' and p.tipo='doctor'" +
 								  "MATCH (d:Doctor)" +
 								  "WHERE d.nombre = p.nombre and d.especialidad = '"+ especialidad +"'" + 
 								  "RETURN d.nombre, d.telefono");
 						if(result2.hasNext()) {
-							System.out.println("Doctor recomendado dado que lo conoce el conocido de un conocido:");
+							System.out.println("Doctor recomendado dado que lo conoce un conocido del doctor original:");
 							Map<String, Object> doctor = result2.next();
 							System.out.println("Nombre: " + doctor.get("d.nombre"));
 							System.out.println("Telefono: " + doctor.get("d.telefono") + "\n");
