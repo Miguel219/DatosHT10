@@ -191,11 +191,24 @@ public class Main {
 							  "WHERE d.nombre = p.nombre and d.especialidad = '"+ especialidad +"'" + 
 							  "RETURN d.nombre, d.telefono");
 					tx.success();
-					System.out.println("Doctor recomendado dado que lo conoce un conocido o el conocido de un conocido:");
-					while(result.hasNext()) {
+					if(result.hasNext()) {
+						System.out.println("Doctor recomendado dado que lo conoce un conocido:");
 						Map<String, Object> doctor = result.next();
 						System.out.println("Nombre: " + doctor.get("d.nombre"));
 						System.out.println("Telefono: " + doctor.get("d.telefono") + "\n");
+					}else if(!result.hasNext()) {
+						Result result2 = db.execute(
+								  "MATCH (p1:Persona) -[:KNOWS]-> (p2:Persona) -[:KNOWS]-> (p3:Persona) -[:KNOWS]-> (p:Persona)" +
+								  "WHERE p1.nombre='"+ nombre +"' and p.tipo='doctor'" +
+								  "MATCH (d:Doctor)" +
+								  "WHERE d.nombre = p.nombre and d.especialidad = '"+ especialidad +"'" + 
+								  "RETURN d.nombre, d.telefono");
+						if(result2.hasNext()) {
+							System.out.println("Doctor recomendado dado que lo conoce el conocido de un conocido:");
+							Map<String, Object> doctor = result2.next();
+							System.out.println("Nombre: " + doctor.get("d.nombre"));
+							System.out.println("Telefono: " + doctor.get("d.telefono") + "\n");
+						}
 					};
 				} finally {
 					// TODO: handle finally clause
